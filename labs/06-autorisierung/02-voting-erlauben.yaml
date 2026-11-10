@@ -1,0 +1,25 @@
+# Schritt 2: Nur die Identität des Web-Frontends darf den Voting-Dienst rufen.
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata:
+  name: voting-clients
+  namespace: emojivoto
+spec:
+  identityRefs:
+    - kind: ServiceAccount
+      name: web
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata:
+  name: voting-nur-web
+  namespace: emojivoto
+spec:
+  targetRef:
+    group: policy.linkerd.io
+    kind: Server
+    name: voting-grpc
+  requiredAuthenticationRefs:
+    - group: policy.linkerd.io
+      kind: MeshTLSAuthentication
+      name: voting-clients

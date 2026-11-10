@@ -1,0 +1,13 @@
+# Lab-Cluster für "Linkerd zum Anfassen".
+# Der Node ist bewusst festgepinnt: kind v0.33 startet sonst Kubernetes 1.37,
+# Linkerd 2.20 ist laut Doku aber nur bis Kubernetes 1.35 freigegeben.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: linkerd-lab
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22f6ed45afd09323c0
+  - role: worker
+    image: kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22f6ed45afd09323c0
+  - role: worker
+    image: kindest/node:v1.35.8@sha256:07b2536e30b803ed61d1677a79df6115f798ce64c80f9e22f6ed45afd09323c0

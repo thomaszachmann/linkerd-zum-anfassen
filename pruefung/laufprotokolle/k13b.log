@@ -1,0 +1,78 @@
+error: cannot rename the context "kind-west", the context "west" already exists in /home/ubuntu/.kube/config
+node/west-control-plane condition met
+Status check results are √
+error: cannot rename the context "kind-east", the context "east" already exists in /home/ubuntu/.kube/config
+node/east-control-plane condition met
+Status check results are √
+deployment "linkerd-gateway" successfully rolled out
+east=172.18.0.3 gw=30759 probe=32548
+
+##### link-gen
+rc=0
+      1 kind: Link
+      2 kind: Secret
+39:  probeSpec:
+40-    path: /ready
+41-    period: 3s
+42-    port: "32548"
+43-  remoteDiscoverySelector:
+44-    matchLabels:
+45-      mirror.linkerd.io/exported: remote-discovery
+39:  probeSpec:
+40-    path: /ready
+41-    period: 3s
+42-    port: "32548"
+43-  remoteDiscoverySelector:
+44-    matchLabels:
+45-      mirror.linkerd.io/exported: remote-discovery
+secret/cluster-credentials-east created
+secret/cluster-credentials-east created
+link.multicluster.linkerd.io/east created
+NAME                                                READY   STATUS    RESTARTS   AGE
+pod/controller-east-6cb5658bc9-qdgj2                2/2     Running   0          32s
+pod/linkerd-gateway-5cdb69949f-p6shn                2/2     Running   0          36s
+pod/linkerd-local-service-mirror-6b86654cf4-nr4fc   2/2     Running   0          36s
+
+NAME                                AGE
+link.multicluster.linkerd.io/east   30s
+
+##### checks
+--------------------
+	* east
+	* east
+	* east
+	* east
+	* east
+	* east
+	* east
+I1106 11:04:45.939025  582338 warnings.go:107] "Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice"
+× probe services able to communicate with all gateway mirrors
+        liveness checks failed for east
+    see https://linkerd.io/2/checks/#l5d-multicluster-gateways-endpoints for hints
+
+Status check results are ×
+mc_check_rc=1
+CLUSTER  ALIVE    NUM_SVC      LATENCY  
+east     False          0            -  
+
+##### spiegeln
+deployment "podinfo" successfully rolled out
+service/podinfo labeled
+NAME                   TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+service/podinfo-east   ClusterIP   10.96.105.34   <none>        80/TCP    15s
+
+NAME                                                ADDRESSTYPE   PORTS   ENDPOINTS    AGE
+endpointslice.discovery.k8s.io/podinfo-east-s24lv   IPv4          30759   172.18.0.3   15s
+pod/c condition met
+200 0.032107
+200 0.001491
+200 0.001844
+200 0.001624
+CLUSTER  ALIVE    NUM_SVC      LATENCY  
+east     False          1            -  
+error: container podinfo is not valid for pod podinfo-7c5b86b58f-88lwr
+
+##### aufraeumen
+Deleted nodes: ["west-control-plane"]
+Deleted nodes: ["east-control-plane"]
+ENDE

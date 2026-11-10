@@ -1,0 +1,308 @@
+
+##### K8 stat-inbound/outbound
+NAME  SERVER          ROUTE      TYPE       SUCCESS   RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  
+web   [default]:4191  probe                 100.00%  0.20          0ms          1ms          1ms  
+web   [default]:4191  [default]             100.00%  0.10          2ms          3ms          3ms  
+web   web-http:8080   web-vote   HTTPRoute   84.75%  0.98          1ms          4ms          4ms  
+web   web-http:8080   web-lesen  HTTPRoute  100.00%  1.00          1ms          2ms          3ms  
+NAME  SERVICE          ROUTE      TYPE  BACKEND          SUCCESS   RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+web   voting-svc:8080  [default]                         100.00%  1.00         25ms         48ms         50ms     0.00%    0.00%  
+                       └─────────────►  voting-svc:8080  100.00%  1.00         12ms         24ms         25ms     0.00%           
+web   emoji-svc:8080   [default]                         100.00%  2.00         25ms         48ms         50ms     0.00%    0.00%  
+                       └─────────────►  emoji-svc:8080   100.00%  2.00         12ms         24ms         25ms     0.00%           
+
+##### K8 viz check mit strengen Servern
+linkerd-viz
+-----------
+
+linkerd-viz
+-----------
+
+linkerd-viz-data-plane
+----------------------
+
+
+##### K8 allow-scrapes
+kind: Server
+  name: proxy-admin
+kind: HTTPRoute
+  name: proxy-metrics
+kind: HTTPRoute
+  name: proxy-probes
+kind: AuthorizationPolicy
+  name: prometheus-scrape
+kind: AuthorizationPolicy
+  name: proxy-probes
+
+##### K8 metriken
+request_total: 12
+response_total: 15
+response_latency_ms: 392
+inbound_http_authz_allow_total: 8
+inbound_http_authz_deny_total: 2
+outbound_http_route_request_statuses_total: 2
+outbound_http_route_backend_requests_total: 2
+outbound_http_balancer_endpoints: 4
+identity_cert_expiration_timestamp_seconds: 0
+
+##### K8 promql
+"success"
+[]
+"success"
+[]
+
+##### K9 demo
+namespace/resilienz created
+deployment.apps/flaky created
+service/flaky created
+deployment.apps/slow created
+service/slow created
+deployment.apps/last-flaky created
+deployment.apps/last-slow created
+Waiting for deployment "flaky" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "flaky" rollout to finish: 1 of 2 updated replicas are available...
+deployment "flaky" successfully rolled out
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+flaky        2/2     2            2           23s
+last-flaky   0/1     1            0           23s
+last-slow    0/1     1            0           23s
+slow         0/2     2            0           23s
+NAME        SERVICE     ROUTE      TYPE  BACKEND     SUCCESS   RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+last-flaky  flaky:8080  [default]                     68.95%  9.98         25ms         48ms         50ms     0.00%    0.00%  
+                        └─────────────►  flaky:8080   68.95%  9.98         13ms         24ms         25ms     0.00%           
+NAME         MESHED   SUCCESS       RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+flaky           2/2    70.91%   10.5rps           1ms           3ms          19ms          6
+last-flaky      1/1   100.00%    0.3rps           1ms           2ms           2ms          1
+last-slow       1/1   100.00%    0.3rps           1ms           1ms           1ms          1
+slow            2/2   100.00%    1.8rps         625ms         962ms         993ms          6
+
+##### K9 retry
+httproute.gateway.networking.k8s.io/flaky-retries created
+NAME        SERVICE     ROUTE          TYPE       BACKEND     SUCCESS    RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+last-flaky  flaky:8080  flaky-retries  HTTPRoute               95.67%  10.00         27ms        250ms        450ms     0.00%   27.01%  
+                        └──────────────────────►  flaky:8080   69.83%  13.70         16ms         64ms         93ms     0.00%           
+
+##### K9 timeout
+httproute.gateway.networking.k8s.io/slow-timeout created
+NAME       SERVICE    ROUTE         TYPE       BACKEND    SUCCESS   RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+last-slow  slow:8080  slow-timeout  HTTPRoute               0.00%  1.97        750ms        975ms        995ms   100.00%    0.00%  
+                      └─────────────────────►  slow:8080    0.00%  1.97        750ms        975ms        995ms   100.00%           
+2026-11-06T09:15:19Z   16      0/20/0 50  40% 10s 500 [501 504 516  516 ]  516      0 
+2026-11-06T09:15:29Z   17      0/20/0 50  40% 10s 500 [501 515 544  544 ]  544      0 
+2026-11-06T09:15:39Z   18      0/20/0 50  40% 10s 501 [502 530 534  534 ]  534      0 
+2026-11-06T09:15:49Z   19      0/19/0 50  38% 10s 500 [503 514 515  515 ]  515      0 
+2026-11-06T09:15:59Z   20      0/20/0 50  40% 10s 500 [502 517 525  525 ]  525      0 
+2026-11-06T09:16:09Z   21      0/20/0 50  40% 10s 500 [502 513 515  515 ]  515      0 
+end id=0:0 proxy=out src=10.244.1.20:44158 dst=10.244.1.17:8080 tls=true duration=0µs response-length=0B
+end id=0:1 proxy=out src=10.244.1.20:44158 dst=10.244.2.16:8080 tls=true duration=0µs response-length=0B
+end id=0:2 proxy=out src=10.244.1.20:44158 dst=10.244.1.17:8080 tls=true duration=0µs response-length=0B
+end id=0:3 proxy=out src=10.244.1.20:44158 dst=10.244.2.16:8080 tls=true duration=0µs response-length=0B
+end id=0:4 proxy=out src=10.244.1.20:44158 dst=10.244.1.17:8080 tls=true duration=0µs response-length=0B
+
+##### K9 timeout 2s
+httproute.gateway.networking.k8s.io/slow-timeout annotated
+NAME       SERVICE    ROUTE         TYPE       BACKEND    SUCCESS   RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+last-slow  slow:8080  slow-timeout  HTTPRoute             100.00%  1.22        750ms        975ms        995ms     0.00%    0.00%  
+                      └─────────────────────►  slow:8080  100.00%  1.22        750ms        975ms        995ms     0.00%           
+
+##### K9 httproute mehrdeutig
+NAME            HOSTNAMES   AGE
+flaky-retries               3m59s
+slow-timeout                2m38s
+
+##### K10 cb demo
+namespace/circuit-breaking-demo created
+deployment.apps/good created
+deployment.apps/bad created
+service/bb created
+deployment.apps/slow-cooker created
+Waiting for deployment "slow-cooker" rollout to finish: 0 of 1 updated replicas are available...
+deployment "slow-cooker" successfully rolled out
+NAME          MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+bad              1/1    72.00%   0.4rps           1ms           4ms           4ms          3
+good             1/1   100.00%   9.8rps           1ms           1ms           3ms          3
+slow-cooker      1/1   100.00%   0.3rps           1ms           1ms           1ms          1
+NAME          MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+slow-cooker      1/1    98.79%   9.7rps           1ms           1ms           2ms          2
+
+##### K10 cb an
+service/bb annotated
+{
+  "Kind": {
+    "ConsecutiveFailures": {
+      "max_failures": 7,
+      "backoff": {
+        "min_backoff": {
+          "seconds": 1
+        },
+        "max_backoff": {
+          "seconds": 60
+        },
+        "jitter_ratio": 0.5
+      }
+    }
+  }
+}
+NAME          MESHED   SUCCESS       RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+bad              1/1    94.74%    0.3rps           1ms           2ms           2ms          3
+good             1/1   100.00%   10.3rps           1ms           4ms          15ms          4
+slow-cooker      1/1   100.00%    0.3rps           1ms           2ms           2ms          1
+NAME          MESHED   SUCCESS       RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+slow-cooker      1/1    99.83%   10.0rps           1ms          10ms          20ms          4
+
+##### K10 rate limit
+error parsing labs/06-autorisierung/._01-server-audit.yaml: error converting YAML to JSON: yaml: control characters are not allowed
+error parsing labs/06-autorisierung/._02-voting-erlauben.yaml: error converting YAML to JSON: yaml: control characters are not allowed
+error parsing labs/06-autorisierung/._03-server-erzwingen.yaml: error converting YAML to JSON: yaml: control characters are not allowed
+error parsing labs/06-autorisierung/._04-web-pro-route.yaml: error converting YAML to JSON: yaml: control characters are not allowed
+meshtlsauthentication.policy.linkerd.io "voting-clients" deleted from emojivoto namespace
+authorizationpolicy.policy.linkerd.io "voting-nur-web" deleted from emojivoto namespace
+server.policy.linkerd.io "web-http" deleted from emojivoto namespace
+httproute.gateway.networking.k8s.io "web-vote" deleted from emojivoto namespace
+httproute.gateway.networking.k8s.io "web-lesen" deleted from emojivoto namespace
+meshtlsauthentication.policy.linkerd.io "nur-vote-bot" deleted from emojivoto namespace
+meshtlsauthentication.policy.linkerd.io "leser" deleted from emojivoto namespace
+authorizationpolicy.policy.linkerd.io "web-vote-erlauben" deleted from emojivoto namespace
+authorizationpolicy.policy.linkerd.io "web-lesen-erlauben" deleted from emojivoto namespace
+deployment.apps/vote-bot scaled
+server.policy.linkerd.io/web-http created
+httplocalratelimitpolicy.policy.linkerd.io/web-http created
+429 429 429 429 200 200 200 200 200 200 
+200 200 200 200 429 200 200 429 429 429 
+200 200 200 200 200 200 429 429 429 429 
+200 200 200 200 200 200 429 429 429 429 
+200 200 200 200 429 429 200 200 429 429 
+server.policy.linkerd.io "web-http" deleted from emojivoto namespace
+httplocalratelimitpolicy.policy.linkerd.io "web-http" deleted from emojivoto namespace
+deployment.apps/vote-bot scaled
+
+##### K5-nachtrag ungemesht ohne policy im tap
+200
+pod "ungemesht3" deleted from default namespace
+req id=5:25 proxy=in  src=10.244.1.22:36424 dst=10.244.2.12:8080 tls=no_tls_from_remote :method=GET :authority=web-svc.emojivoto :path=/
+rsp id=5:25 proxy=in  src=10.244.1.22:36424 dst=10.244.2.12:8080 tls=no_tls_from_remote :status=200 latency=2124µs
+end id=5:25 proxy=in  src=10.244.1.22:36424 dst=10.244.2.12:8080 tls=no_tls_from_remote duration=52µs response-length=0B
+
+##### K5-nachtrag tshark 4143 vs 8080
+
+deployment "voting" injected
+
+deployment.apps/voting configured
+Waiting for deployment "voting" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "voting" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "voting" rollout to finish: 1 old replicas are pending termination...
+deployment "voting" successfully rolled out
+--- buch-kommando ueber deploy/voting:
+     19 TCP 68 45720 →
+     16 TCP 68 8080 →
+     11 TLSv1.2 104 Application Data
+     11 TCP 68 4143 →
+     11 TCP 68 35600 →
+     11 SSL 85 Continuation Data
+     11 SSL 82 Continuation Data
+     10 SSL 98 Continuation Data
+--- ports:
+     50 10.244.1.23	10.244.1.23	8080	TCP
+     38 10.244.1.23	10.244.1.23	45720	TCP
+     22 10.244.2.12	10.244.1.23	4143	TLSv1.2
+     12 10.244.2.12	10.244.1.23	4143	TCP
+     12 10.244.1.23	10.244.2.12	35600	TLSv1.2
+     11 10.244.1.23	10.244.2.12	35600	TCP
+      8 10.244.1.1	10.244.1.23	4191	TCP
+      6 127.0.0.1	127.0.0.1	55678	TCP
+      6 		55678	TCP
+      4 10.244.1.23	10.244.1.1	57956	TCP
+--- klartext 4143 (fremdverkehr):
+0
+--- klartext 8080 (loopback proxy-app):
+0
+/emojivoto.v1.VotingService/VoteWalkingMan
+/emojivoto.v1.VotingService/VoteBowingMan
+/emojivoto.v1.VotingService/VotePoop
+
+namespace "emojivoto" annotated
+serviceaccount "emoji" skipped
+serviceaccount "voting" skipped
+serviceaccount "web" skipped
+service "emoji-svc" skipped
+service "voting-svc" skipped
+service "web-svc" skipped
+deployment "emoji" injected
+deployment "vote-bot" injected
+deployment "voting" injected
+deployment "web" injected
+
+deployment.apps/web unchanged
+
+##### K11 demo
+namespace/traffic-shift-demo created
+deployment.apps/v1 created
+deployment.apps/v2 created
+service/bb created
+service/bb-v2 created
+deployment.apps/slow-cooker created
+Waiting for deployment "slow-cooker" rollout to finish: 0 of 1 updated replicas are available...
+deployment "slow-cooker" successfully rolled out
+NAME   MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+v1        1/1   100.00%   9.3rps           1ms           2ms          10ms          1
+
+##### K11 90-10
+httproute.gateway.networking.k8s.io/bb-route created
+NAME   MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+v1        1/1   100.00%   8.9rps           1ms           6ms          21ms          1
+v2        1/1   100.00%   1.1rps           1ms          15ms          19ms          1
+
+##### K11 100
+httproute.gateway.networking.k8s.io/bb-route configured
+NAME   MESHED   SUCCESS       RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+v1        1/1         -         -             -             -             -          -
+v2        1/1   100.00%   10.0rps           1ms           2ms          30ms          1
+
+##### K11 header
+httproute.gateway.networking.k8s.io/bb-route configured
+pod/tester created
+pod/tester condition met
+{"requestUID":"in:http-sid:terminus-grpc:-1-h1:8080-510660493","payload":"v1"}
+{"requestUID":"in:http-sid:terminus-grpc:-1-h1:8080-694274833","payload":"v1"}
+{"requestUID":"in:http-sid:terminus-grpc:-1-h1:8080-846907682","payload":"v1"}
+{"requestUID":"in:http-sid:terminus-grpc:-1-h1:8080-29370568","payload":"v2"}
+{"requestUID":"in:http-sid:terminus-grpc:-1-h1:8080-205963070","payload":"v2"}
+{"requestUID":"in:http-sid:terminus-grpc:-1-h1:8080-368415749","payload":"v2"}
+
+##### K11 cleanup
+deployment.apps "slow-cooker" deleted from traffic-shift-demo namespace
+deployment.apps "slow-cooker" deleted from circuit-breaking-demo namespace
+deployment.apps "last-slow" deleted from resilienz namespace
+
+##### K12 egress
+namespace/egress-test created
+egressnetwork.policy.linkerd.io/all-egress-traffic created
+pod/client created
+pod/client condition met
+allow /get: 200 200 200 200 200 
+outbound_http_route_request_statuses_total{parent_group="policy.linkerd.io",parent_kind="EgressNetwork",parent_namespace="egress-test",parent_name="all-egress-traffic",parent_port="80",parent_section_name="",route_group="",route_kind="default",route_namespace="",route_name="http-egress-allow",hostname="httpbin.org",http_status="200",error=""} 5
+
+##### K12 deny
+egressnetwork.policy.linkerd.io/all-egress-traffic patched
+deny /get: 403 403 403 403 403 
+      1 route_name="http-egress-allow"
+      1 route_name="http-egress-deny"
+
+##### K12 route frei
+httproute.gateway.networking.k8s.io/httpbin-get created
+/get: 200 200 200 200 200 
+/headers: 403 403 403 403 403 
+
+##### K12 tls
+tls vorher: 000
+command terminated with exit code 35
+rc=35
+tlsroute.gateway.networking.k8s.io/tls-egress created
+200
+rc=0
+tls-egress Accepted ResolvedRefs=True True
+
+##### K12 cleanup
+egressnetwork.policy.linkerd.io "all-egress-traffic" deleted from egress-test namespace
+pod "client" deleted from egress-test namespace
+ENDE

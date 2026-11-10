@@ -1,0 +1,19 @@
+# Harte Obergrenze: Nach 500 ms gibt der Client-Proxy auf.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: slow-timeout
+  namespace: resilienz
+  annotations:
+    timeout.linkerd.io/request: 500ms
+spec:
+  parentRefs:
+    - name: slow
+      kind: Service
+      group: core
+      port: 8080
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /

@@ -1,0 +1,13 @@
+# Schritt 3: Gleicher Server, jetzt scharf geschaltet.
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata:
+  name: voting-grpc
+  namespace: emojivoto
+spec:
+  podSelector:
+    matchLabels:
+      app: voting-svc
+  port: grpc
+  proxyProtocol: gRPC
+  accessPolicy: deny

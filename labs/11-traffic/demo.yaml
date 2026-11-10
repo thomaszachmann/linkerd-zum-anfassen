@@ -1,0 +1,108 @@
+# Zwei Versionen desselben Dienstes. Der Service bb zeigt nur auf v1,
+# bb-v2 nur auf v2. Die Verteilung übernimmt später eine HTTPRoute.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traffic-shift-demo
+  annotations:
+    linkerd.io/inject: enabled
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: v1
+  namespace: traffic-shift-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bb
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: bb
+        version: v1
+    spec:
+      containers:
+        - name: terminus
+          image: buoyantio/bb:v0.0.6
+          args: ["terminus", "--h1-server-port=8080", "--response-text=v1"]
+          ports:
+            - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: v2
+  namespace: traffic-shift-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bb
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: bb
+        version: v2
+    spec:
+      containers:
+        - name: terminus
+          image: buoyantio/bb:v0.0.6
+          args: ["terminus", "--h1-server-port=8080", "--response-text=v2"]
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bb
+  namespace: traffic-shift-demo
+spec:
+  selector:
+    app: bb
+    version: v1
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bb-v2
+  namespace: traffic-shift-demo
+spec:
+  selector:
+    app: bb
+    version: v2
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slow-cooker
+  namespace: traffic-shift-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: slow-cooker
+  template:
+    metadata:
+      labels:
+        app: slow-cooker
+    spec:
+      containers:
+        - name: slow-cooker
+          image: buoyantio/slow_cooker:1.3.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              sleep 5
+              /slow_cooker/slow_cooker --qps 10 http://bb:8080

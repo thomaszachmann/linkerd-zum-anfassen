@@ -1,0 +1,33 @@
+# accessPolicy ist Pflichtlektüre: Ohne den Wert würde dieser Server alles ablehnen,
+# denn der Default ist deny.
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata:
+  name: web-http
+  namespace: emojivoto
+spec:
+  podSelector:
+    matchLabels:
+      app: web-svc
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: all-unauthenticated
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: HTTPLocalRateLimitPolicy
+metadata:
+  name: web-http
+  namespace: emojivoto
+spec:
+  targetRef:
+    group: policy.linkerd.io
+    kind: Server
+    name: web-http
+  identity:
+    requestsPerSecond: 4
+  overrides:
+    - requestsPerSecond: 6
+      clientRefs:
+        - kind: ServiceAccount
+          namespace: emojivoto
+          name: lab-client

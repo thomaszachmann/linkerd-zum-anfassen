@@ -1,0 +1,27 @@
+# Sichtbar machen: Alles ist erlaubt, wird aber als Egress erfasst.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: egress-test
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: EgressNetwork
+metadata:
+  name: all-egress-traffic
+  namespace: egress-test
+spec:
+  trafficPolicy: Allow
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client
+  namespace: egress-test
+  annotations:
+    linkerd.io/inject: enabled
+    config.linkerd.io/proxy-metrics-hostname-labels: "true"
+spec:
+  containers:
+    - name: client
+      image: curlimages/curl:8.23.0
+      command: ["sh", "-c", "sleep infinity"]

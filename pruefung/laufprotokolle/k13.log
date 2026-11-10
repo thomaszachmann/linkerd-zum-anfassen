@@ -1,0 +1,136 @@
+Thanks for using kind! 😊
+Context "kind-west" renamed to "west".
+node/west-control-plane condition met
+validatingadmissionpolicybinding.admissionregistration.k8s.io/safe-upgrades.gateway.networking.k8s.io created
+Rendering Linkerd CRDs...
+Next, run `linkerd install | kubectl apply -f -` to install the control plane.
+
+customresourcedefinition.apiextensions.k8s.io/externalworkloads.workload.linkerd.io created
+secret/linkerd-config-overrides created
+Status check results are √
+Not sure what to do next? 😅  Check out https://kind.sigs.k8s.io/docs/user/quick-start/
+Context "kind-east" renamed to "east".
+node/east-control-plane condition met
+validatingadmissionpolicybinding.admissionregistration.k8s.io/safe-upgrades.gateway.networking.k8s.io created
+Rendering Linkerd CRDs...
+Next, run `linkerd install | kubectl apply -f -` to install the control plane.
+
+customresourcedefinition.apiextensions.k8s.io/externalworkloads.workload.linkerd.io created
+secret/linkerd-config-overrides created
+Status check results are √
+
+##### K13 buch schritt 1 install beide
+deployment.apps/linkerd-local-service-mirror created
+clusterrole.rbac.authorization.k8s.io/linkerd-multicluster-controller-access-local-resources created
+deployment.apps/linkerd-local-service-mirror created
+clusterrole.rbac.authorization.k8s.io/linkerd-multicluster-controller-access-local-resources created
+NAME                      TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                         AGE
+service/linkerd-gateway   LoadBalancer   10.96.206.25   <pending>     4143:31562/TCP,4191:32222/TCP   0s
+
+NAME                                                READY   STATUS     RESTARTS   AGE
+pod/linkerd-gateway-5cdb69949f-4bdj5                0/2     Init:0/2   0          0s
+pod/linkerd-local-service-mirror-6b86654cf4-mh64w   0/2     Init:0/2   0          0s
+
+##### K13 buch schritt 2 controller
+clusterrolebinding.rbac.authorization.k8s.io/linkerd-multicluster-controller-access-local-resources-east created
+role.rbac.authorization.k8s.io/controller-read-remote-creds-east created
+rolebinding.rbac.authorization.k8s.io/controller-read-remote-creds-east created
+
+##### K13 link-gen hilfe
+  linkerd --context=east multicluster link-gen --cluster-name east | kubectl --context=west apply -f -
+      --api-server-address string           The api server address of the target cluster
+      --cluster-name string                 Cluster name
+      --gateway                             If false, allows a link to be created against a cluster that does 
+      --gateway-addresses string            If specified, overwrites gateway addresses when gateway service is
+      --gateway-name string                 The name of the gateway service (default "linkerd-gateway")
+      --gateway-namespace string            The namespace of the gateway service (default "linkerd-multicluste
+      --gateway-port uint32                 If specified, overwrites gateway port when gateway service is not 
+      --service-account-name string         The name of the service account associated with the credentials (d
+
+##### K13 buch link-gen unveraendert
+linkgen_rc=1
+Error: gateway linkerd-gateway.linkerd-multicluster has no ingress addresses
+Usage:
+  linkerd multicluster link-gen [flags]
+
+Examples:
+
+##### K13 gateway NodePort fuer kind
+clusterrole.rbac.authorization.k8s.io/linkerd-multicluster-controller-access-local-resources unchanged
+deployment "linkerd-gateway" successfully rolled out
+NAME              TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)                         AGE   SELECTOR
+linkerd-gateway   NodePort   10.96.206.25   <none>        4143:31562/TCP,4191:32222/TCP   14s   app=linkerd-gateway
+east=172.18.0.3 gw=31562 probe=32222
+linkgen2_rc=1
+Error: unknown flag: --set
+Usage:
+  linkerd multicluster link-gen [flags]
+
+Examples:
+error: no objects passed to apply
+NAME                                                READY   STATUS    RESTARTS   AGE
+pod/controller-east-6cb5658bc9-kgk72                2/2     Running   0          30s
+pod/linkerd-gateway-5cdb69949f-kf62m                2/2     Running   0          41s
+pod/linkerd-local-service-mirror-6b86654cf4-d9hv8   2/2     Running   0          41s
+
+##### K13 checks
+linkerd-multicluster
+--------------------
+
+mc_check_rc=0
+CLUSTER  ALIVE    NUM_SVC      LATENCY  
+east     False          0            -  
+
+##### K13 service spiegeln
+namespace/test created
+namespace/test annotated
+deployment.apps/podinfo created
+service/podinfo exposed
+deployment "podinfo" successfully rolled out
+namespace/test created
+service/podinfo labeled
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+No resources found in test namespace.
+namespace/test annotated
+pod/c condition met
+000 0.062230
+command terminated with exit code 6
+000 0.004077
+command terminated with exit code 6
+000 0.004319
+command terminated with exit code 6
+CLUSTER  ALIVE    NUM_SVC      LATENCY  
+east     False          0            -  
+
+##### top test
+serviceprofile.linkerd.io/prometheus.linkerd-viz.svc.cluster.local created
+Status check results are √
+
+namespace "emojivoto" annotated
+serviceaccount "emoji" skipped
+serviceaccount "voting" skipped
+serviceaccount "web" skipped
+service "emoji-svc" skipped
+service "voting-svc" skipped
+service "web-svc" skipped
+deployment "emoji" injected
+deployment "vote-bot" injected
+deployment "voting" injected
+deployment "web" injected
+
+deployment.apps/web created
+deployment "web" successfully rolled out
+Switched to context "west".
+-rw-rw-r-- 1 ubuntu docker 226 Nov  6 11:00 /tmp/top.txt
+Script started on 2026-11-06 11:00:10+01:00 [COMMAND="linkerd viz -n emojivoto top deploy/web" <not executed on terminal>]
+^[[?1049h^[[22;0;0t^[[?1h^[=^[[?25l^[[H^[[2J
+Script done on 2026-11-06 11:00:24+01:00 [COMMAND_EXIT_CODE="0"]
+
+##### ressourcen
+Mem:           7.7Gi       3.0Gi       203Mi       170Mi       4.8Gi       4.7Gi
+/dev/sda1        19G  8.1G   11G  44% /
+
+##### aufraeumen
+Deleted nodes: ["west-control-plane"]
+Deleted nodes: ["east-control-plane"]
+ENDE

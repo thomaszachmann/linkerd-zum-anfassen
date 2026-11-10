@@ -1,0 +1,234 @@
+
+##### K4 emojivoto ohne mesh
+deployment.apps/vote-bot created
+deployment.apps/voting created
+deployment.apps/web created
+Waiting for deployment "web" rollout to finish: 0 of 1 updated replicas are available...
+deployment "web" successfully rolled out
+
+##### K4 inject
+
+deployment "emoji" injected
+deployment "vote-bot" injected
+deployment "voting" injected
+deployment "web" injected
+
+deployment.apps/emoji configured
+deployment.apps/vote-bot configured
+deployment.apps/voting configured
+deployment.apps/web configured
+Waiting for deployment "web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "web" rollout to finish: 1 old replicas are pending termination...
+deployment "web" successfully rolled out
+Waiting for deployment "emoji" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "emoji" rollout to finish: 1 old replicas are pending termination...
+deployment "emoji" successfully rolled out
+deployment "voting" successfully rolled out
+deployment "vote-bot" successfully rolled out
+I1106 10:03:43.695927   20808 warnings.go:107] "Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice"
+Status check results are √
+proxy_check_exit=0
+
+NAME                        READY   STATUS        RESTARTS   AGE   IP           NODE                  NOMINATED NODE   READINESS GATES
+emoji-745c8cd747-b8zsg      2/2     Running       0          34s   10.244.2.8   linkerd-lab-worker    <none>           <none>
+emoji-7484cbfc6d-t2dtm      1/1     Terminating   0          73s   10.244.1.5   linkerd-lab-worker2   <none>           <none>
+vote-bot-77b6c7959b-9zd8x   2/2     Running       0          34s   10.244.1.9   linkerd-lab-worker2   <none>           <none>
+voting-669f575645-256zf     1/1     Terminating   0          73s   10.244.2.7   linkerd-lab-worker    <none>           <none>
+voting-846d476944-kn7lz     2/2     Running       0          34s   10.244.1.8   linkerd-lab-worker2   <none>           <none>
+web-796c9c9495-smgb5        1/1     Terminating   0          73s   10.244.1.7   linkerd-lab-worker2   <none>           <none>
+web-7d64655496-mw2m8        2/2     Running       0          34s   10.244.2.9   linkerd-lab-worker    <none>           <none>
+
+##### K4 stat
+NAME       MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+emoji         1/1   100.00%   2.3rps           1ms           1ms           3ms          3
+vote-bot      1/1   100.00%   0.3rps           1ms           1ms           1ms          1
+voting        1/1    85.90%   1.3rps           1ms           1ms           1ms          3
+web           1/1    91.91%   2.3rps           1ms           3ms           3ms          3
+
+##### K4 top
+
+Global Flags:
+      --api-addr string            Override kubeconfig and communicate directly with the control plane at host:port (mostly for testing)
+      --as string                  Username to impersonate for Kubernetes operations
+      --as-group stringArray       Group to impersonate for Kubernetes operations
+      --cni-namespace string       Namespace in which the Linkerd CNI plugin is installed (default "linkerd-cni")
+      --context string             Name of the kubeconfig context to use
+      --kubeconfig string          Path to the kubeconfig file to use for CLI requests
+  -L, --linkerd-namespace string   Namespace in which Linkerd is installed (default "linkerd")
+      --verbose                    Turn on debug logging
+      --viz-namespace string       Name of the linkerd-viz namespace. If not set, it's automatically detected
+
+
+##### K4 tap
+req id=1:0 proxy=in  src=10.244.1.9:54006 dst=10.244.2.9:8080 tls=true :method=GET :authority=web-svc.emojivoto:80 :path=/api/list
+req id=1:1 proxy=out src=10.244.2.9:44244 dst=10.244.2.8:8080 tls=true :method=POST :authority=emoji-svc.emojivoto:8080 :path=/emojivoto.v1.EmojiService/ListAll
+rsp id=1:1 proxy=out src=10.244.2.9:44244 dst=10.244.2.8:8080 tls=true :status=200 latency=1378µs
+end id=1:1 proxy=out src=10.244.2.9:44244 dst=10.244.2.8:8080 tls=true grpc-status=OK duration=24µs response-length=0B
+rsp id=1:0 proxy=in  src=10.244.1.9:54006 dst=10.244.2.9:8080 tls=true :status=200 latency=2461µs
+end id=1:0 proxy=in  src=10.244.1.9:54006 dst=10.244.2.9:8080 tls=true duration=224µs response-length=0B
+
+##### K5 edges
+SRC          DST        SRC_NS        DST_NS      SECURED
+vote-bot     web        emojivoto     emojivoto   √      
+web          emoji      emojivoto     emojivoto   √      
+web          voting     emojivoto     emojivoto   √      
+prometheus   emoji      linkerd-viz   emojivoto   √      
+prometheus   vote-bot   linkerd-viz   emojivoto   √      
+prometheus   voting     linkerd-viz   emojivoto   √      
+prometheus   web        linkerd-viz   emojivoto   √      
+
+##### K5 tap voting
+req id=0:0 proxy=in  src=10.244.2.9:60608 dst=10.244.1.8:8080 tls=true :method=POST :authority=voting-svc.emojivoto:8080 :path=/emojivoto.v1.VotingService/VoteThumbsup
+rsp id=0:0 proxy=in  src=10.244.2.9:60608 dst=10.244.1.8:8080 tls=true :status=200 latency=758µs
+end id=0:0 proxy=in  src=10.244.2.9:60608 dst=10.244.1.8:8080 tls=true grpc-status=OK duration=128µs response-length=0B
+req id=0:1 proxy=in  src=10.244.2.9:60608 dst=10.244.1.8:8080 tls=true :method=POST :authority=voting-svc.emojivoto:8080 :path=/emojivoto.v1.VotingService/VoteMan
+rsp id=0:1 proxy=in  src=10.244.2.9:60608 dst=10.244.1.8:8080 tls=true :status=200 latency=3101µs
+end id=0:1 proxy=in  src=10.244.2.9:60608 dst=10.244.1.8:8080 tls=true grpc-status=OK duration=48µs response-length=0B
+req id=0:2 proxy=in  src=10.244.2.9:60608 dst=10.244.1.8:8080 tls=true :method=POST :authority=voting-svc.emojivoto:8080 :path=/emojivoto.v1.VotingService/VoteWave
+rsp id=0:2 proxy=in  src=10.244.2.9:60608 dst=10.244.1.8:8080 tls=true :status=200 latency=869µs
+     42 tls=true
+
+##### K5 debug sidecar
+
+namespace "emojivoto" annotated
+serviceaccount "emoji" skipped
+serviceaccount "voting" skipped
+serviceaccount "web" skipped
+service "emoji-svc" skipped
+service "voting-svc" skipped
+service "web-svc" skipped
+deployment "emoji" injected
+deployment "vote-bot" injected
+deployment "voting" injected
+deployment "web" injected
+
+deployment.apps/voting configured
+deployment.apps/web configured
+Waiting for deployment "voting" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "voting" rollout to finish: 1 old replicas are pending termination...
+deployment "voting" successfully rolled out
+pod=pod/voting-5b5ffb74f7-kgfll
+pod/voting-846d476944-kn7lz
+  342 13.538054913  10.244.2.10 → 10.244.2.10  SSL 82 Continuation Data
+  343 13.538057996  10.244.2.10 → 10.244.2.10  TCP 68 8080 → 58154 [ACK] Seq=1219 Ack=2245 Win=64 Len=0 TSval=3058752432 TSecr=3160309581
+  344 13.538101705  10.244.2.10 → 10.244.2.10  SSL 98 Continuation Data
+  345 13.538290539  10.244.2.10 → 10.244.2.10 tshark: 
+350 packets captured
+ SSL 104 Continuation Data
+  346 13.538341289  10.244.2.10 → 10.244.2.10  TCP 68 58154 → 8080 [ACK] Seq=2245 Ack=1285 Win=64 Len=0 TSval=3160309582 TSecr=3058752432
+  347 13.538357289  10.244.2.10 → 10.244.2.10  SSL 85 Continuation Data
+  348 13.538459290  10.244.2.10 → 10.244.1.12  TLSv1.2 150 Application Data
+  349 13.538481915  10.244.1.12 → 10.244.2.10  TCP 68 41644 → 4143 [ACK] Seq=1446 Ack=819 Win=71 Len=0 TSval=57014383 TSecr=702893524
+  350 13.579234650  10.244.2.10 → 10.244.2.10  TCP 68 8080 → 58154 [ACK] Seq=1285 Ack=2262 Win=64 Len=0 TSval=3058752474 TSecr=3160309582
+command terminated with exit code 124
+--- klartext-suche:
+0
+
+##### K5 rueckbau debug
+
+namespace "emojivoto" annotated
+serviceaccount "emoji" skipped
+serviceaccount "voting" skipped
+serviceaccount "web" skipped
+service "emoji-svc" skipped
+service "voting-svc" skipped
+service "web-svc" skipped
+deployment "emoji" injected
+deployment "vote-bot" injected
+deployment "voting" injected
+deployment "web" injected
+
+deployment.apps/voting configured
+deployment.apps/web configured
+Waiting for deployment spec update to be observed...
+Waiting for deployment "voting" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "voting" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "voting" rollout to finish: 1 old replicas are pending termination...
+deployment "voting" successfully rolled out
+emoji-55bc58545d-xhfpz emoji-svc,linkerd-debug,
+emoji-745c8cd747-x6zcl emoji-svc,
+vote-bot-77b6c7959b-k5vls vote-bot,
+vote-bot-86c685747-shgzv vote-bot,linkerd-debug,
+voting-5b5ffb74f7-kgfll voting-svc,linkerd-debug,
+voting-846d476944-8r6z6 voting-svc,
+web-7d64655496-f285q web-svc,
+web-9d97d6d6f-mqtgn web-svc,linkerd-debug,
+
+##### K5 ungemesht
+200
+pod "ungemesht" deleted from default namespace
+
+##### K6 client
+serviceaccount/lab-client created
+deployment.apps/lab-client created
+Waiting for deployment "lab-client" rollout to finish: 0 of 1 updated replicas are available...
+deployment "lab-client" successfully rolled out
+
+##### K6 s1 audit
+server.policy.linkerd.io/voting-grpc created
+ROUTE    SERVER                       AUTHORIZATION                UNAUTHORIZED  SUCCESS     RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  
+default  default:all-unauthenticated  default/all-unauthenticated        0.0rps  100.00%  0.5rps         20ms         29ms         30ms  
+probe    default:all-unauthenticated  default/probe                      0.0rps  100.00%  0.3rps          1ms          1ms          1ms  
+default  voting-grpc                  default/audit                      0.0rps   88.46%  0.4rps          1ms          1ms          1ms  
+30
+
+##### K6 s2 regeln
+meshtlsauthentication.policy.linkerd.io/voting-clients created
+authorizationpolicy.policy.linkerd.io/voting-nur-web created
+ROUTE    SERVER                       AUTHORIZATION                       UNAUTHORIZED  SUCCESS     RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  
+default  default:all-unauthenticated  default/all-unauthenticated               0.0rps  100.00%  0.1rps          1ms          1ms          1ms  
+probe    default:all-unauthenticated  default/probe                             0.0rps  100.00%  0.2rps          1ms          1ms          1ms  
+default  voting-grpc                  authorizationpolicy/voting-nur-web        0.0rps   86.49%  0.6rps          1ms          3ms          3ms  
+default  voting-grpc                  default/audit                             0.0rps   86.67%  0.2rps          0ms          0ms          0ms  
+
+##### K6 s3 erzwingen
+server.policy.linkerd.io/voting-grpc configured
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for http://voting-svc.emojivoto:8080/emojivoto.v1.VotingService/VoteDog
+* [HTTP/2] [1] [:method: POST]
+* [HTTP/2] [1] [:scheme: http]
+* [HTTP/2] [1] [:authority: voting-svc.emojivoto:8080]
+* [HTTP/2] [1] [:path: /emojivoto.v1.VotingService/VoteDog]
+* [HTTP/2] [1] [user-agent: curl/8.23.0]
+* [HTTP/2] [1] [accept: */*]
+* [HTTP/2] [1] [content-type: application/grpc]
+> POST /emojivoto.v1.VotingService/VoteDog HTTP/2
+< HTTP/2 200 
+< content-length: 0
+< content-type: application/grpc
+< grpc-status: 7
+< grpc-message: client 10.244.2.14:34262: server: 10.244.1.14:4143: unauthorized request on route
+< date: Fri, 06 Nov 2026 09:08:37 GMT
+< 
+--- app laeuft weiter?
+NAME         MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+emoji           1/1   100.00%   2.3rps           1ms           5ms           9ms          3
+lab-client      1/1   100.00%   0.3rps           1ms           2ms           2ms          1
+vote-bot        1/1   100.00%   0.3rps           1ms           2ms           2ms          1
+voting          1/1    92.31%   1.3rps           1ms           3ms           4ms          4
+web             1/1    95.65%   2.3rps           3ms          19ms          88ms          3
+
+##### K6 route
+server.policy.linkerd.io/web-http created
+httproute.gateway.networking.k8s.io/web-vote created
+httproute.gateway.networking.k8s.io/web-lesen created
+meshtlsauthentication.policy.linkerd.io/nur-vote-bot created
+meshtlsauthentication.policy.linkerd.io/leser created
+authorizationpolicy.policy.linkerd.io/web-vote-erlauben created
+authorizationpolicy.policy.linkerd.io/web-lesen-erlauben created
+/api/list: 200
+/api/vote: 403
+/: 404
+/nope: 404
+NAME         MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+emoji           1/1   100.00%   2.3rps           1ms           1ms           2ms          3
+lab-client      1/1   100.00%   0.3rps           1ms           5ms           5ms          1
+vote-bot        1/1   100.00%   0.3rps           1ms           2ms           2ms          1
+voting          1/1    90.91%   1.3rps           1ms           2ms           2ms          3
+web             1/1    96.18%   2.2rps           2ms          10ms          48ms          6
+error: Internal error occurred: Internal error occurred: error executing command in container: failed to exec in container: failed to start exec "52f4a7e4ec10f79eb351ecb0ca0de0d507f19bf29f980a7bdba7890d5cae1bea": OCI runtime exec failed: exec failed: unable to start container process: exec: "/bin/true": stat /bin/true: no such file or directory
+# HELP inbound_http_route_not_found_total The total number of inbound HTTP requests that could not be associated with a route
+# TYPE inbound_http_route_not_found_total counter
+inbound_http_route_not_found_total{target_addr="10.244.2.12:8080",target_ip="10.244.2.12",target_port="8080",srv_group="policy.linkerd.io",srv_kind="server",srv_name="web-http",srv_port="8080",tls="true",client_id="lab-client.emojivoto.serviceaccount.identity.linkerd.cluster.local"} 2
+
+ENDE

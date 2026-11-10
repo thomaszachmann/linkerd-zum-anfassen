@@ -1,0 +1,140 @@
+
+##### K12 hostname aus log
+parent_kind="EgressNetwork"
+route_name="http-egress-allow"
+hostname="httpbin.org"
+
+##### K4 top tty
+
+##### K8 promql korrigiert
+"success"
+[1793958356.966,"83608.03399991989"]
+[]
+
+##### K9 serviceprofile mit route
+serviceprofile.linkerd.io/flaky.resilienz.svc.cluster.local created
+NAME        SERVICE     ROUTE          TYPE       BACKEND     SUCCESS    RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+last-flaky  flaky:8080  flaky-retries  HTTPRoute               97.28%   9.18         30ms        356ms        471ms     0.00%   27.02%  
+                        └──────────────────────►  flaky:8080   70.99%  12.58         18ms         97ms        217ms     0.00%           
+NAME    MESHED   SUCCESS       RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+flaky      2/2    72.12%   14.1rps           1ms           3ms          18ms          6
+namespace "resilienz" deleted
+namespace "circuit-breaking-demo" deleted
+
+##### K14 upgrade gleiche version
+Status check results are √
+Status check results are √
+customresourcedefinition.apiextensions.k8s.io/serviceprofiles.linkerd.io unchanged
+customresourcedefinition.apiextensions.k8s.io/externalworkloads.workload.linkerd.io unchanged
+service/linkerd-proxy-injector unchanged
+secret/linkerd-config-overrides unchanged
+--- prune:
+No resources found
+prune_rc=0
+Status check results are √
+serviceprofile.linkerd.io/prometheus.linkerd-viz.svc.cluster.local unchanged
+--- viz prune:
+No resources found
+viz_prune_rc=0
+deployment.apps/emoji restarted
+deployment.apps/lab-client restarted
+deployment.apps/vote-bot restarted
+deployment.apps/voting restarted
+deployment.apps/web restarted
+deployment "web" successfully rolled out
+Status check results are √
+
+##### K7 step installieren
+step_linux_0.31.0_arm64.tar.gz: OK
+Smallstep CLI/0.31.0 (linux/arm64)
+
+##### K7 lab-cluster weg, pki-cluster
+Deleted nodes: ["linkerd-lab-worker" "linkerd-lab-control-plane" "linkerd-lab-worker2"]
+kubectl cluster-info --context kind-linkerd-pki
+
+Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+kind-linkerd-pki
+node/linkerd-pki-worker2 condition met
+validatingadmissionpolicybinding.admissionregistration.k8s.io/safe-upgrades.gateway.networking.k8s.io created
+Your certificate has been saved in ca.crt.
+Your private key has been saved in ca.key.
+Your certificate has been saved in issuer.crt.
+Your private key has been saved in issuer.key.
+"linkerd-edge" has been added to your repositories
+Update Complete. ⎈Happy Helming!⎈
+linkerd-control-plane chart in the linkerd namespace.
+
+Looking for more? Visit https://linkerd.io/2/getting-started/
+
+  helm install linkerd-viz linkerd/linkerd-viz
+
+Looking for more? Visit https://linkerd.io/2/getting-started/
+linkerd-version
+---------------
+
+control-plane-version
+---------------------
+
+linkerd-control-plane-proxy
+---------------------------
+
+linkerd-extension-checks
+------------------------
+
+check_rc=0
+
+##### K7 fingerprint
+aaea06b495cdca8a470c30b3b561175d192e19360b3957c8014cf3c7745f015f
+aaea06b495cdca8a470c30b3b561175d192e19360b3957c8014cf3c7745f015f
+fp_rc=0
+["ca-bundle.crt"]
+
+##### K14 helm ha
+fetch_rc=0
+linkerd-control-plane/values-ha.yaml
+  helm install linkerd-viz linkerd/linkerd-viz
+
+Looking for more? Visit https://linkerd.io/2/getting-started/
+NAME                                      READY   STATUS    RESTARTS   AGE    IP           NODE
+linkerd-destination-649df8dbcc-gxcpn      0/4     Pending   0          31s    <none>       <non
+linkerd-destination-649df8dbcc-tfvb9      0/4     Pending   0          30s    <none>       <non
+linkerd-destination-866dfcb76d-97lpl      4/4     Running   0          100s   10.244.1.2   link
+linkerd-destination-866dfcb76d-cfc4v      4/4     Running   0          31s    10.244.2.6   link
+linkerd-identity-78dbf945db-fz5x2         2/2     Running   0          100s   10.244.2.3   link
+linkerd-identity-78dbf945db-ttscb         2/2     Running   0          31s    10.244.1.4   link
+linkerd-identity-f8657f7bd-h5zc6          0/2     Pending   0          30s    <none>       <non
+linkerd-identity-f8657f7bd-tvks2          0/2     Pending   0          30s    <none>       <non
+linkerd-proxy-injector-6d49fd4c74-dvlg5   0/2     Pending   0          30s    <none>       <non
+linkerd-proxy-injector-6d49fd4c74-gmf6l   0/2     Pending   0          30s    <none>       <non
+linkerd-proxy-injector-dfb5699d5-ksxjr    2/2     Running   0          31s    10.244.1.3   link
+linkerd-proxy-injector-dfb5699d5-whlc2    2/2     Running   0          100s   10.244.2.2   link
+NAME                        STATUS   ROLES           AGE    VERSION
+linkerd-pki-control-plane   Ready    control-plane   2m8s   v1.35.8
+linkerd-pki-worker          Ready    <none>          119s   v1.35.8
+linkerd-pki-worker2         Ready    <none>          119s   v1.35.8
+6
+Events:
+  Type     Reason            Age                From               Message
+  ----     ------            ----               ----               -------
+  Warning  FailedScheduling  29s (x2 over 31s)  default-scheduler  0/3 nodes are available: 1 node(s) had untolerated taint(s), 2 node(s) didn't match pod anti-affinity r
+
+##### K14 helm upgrade atomic
+
+Looking for more? Visit https://linkerd.io/2/getting-started/
+rc=0
+  helm install linkerd-viz linkerd/linkerd-viz
+
+Looking for more? Visit https://linkerd.io/2/getting-started/
+atomic_rc=0
+      --reset-then-reuse-values                    when upgrading, reset the values to the ones buil
+      --reset-values                               when upgrading, reset the values to the ones buil
+      --reuse-values                               when upgrading, reuse the last release's values a
+      --rollback-on-failure                        if set, Helm will rollback the upgrade to previou
+5
+
+##### K7 aufraeumen
+Deleted nodes: ["linkerd-pki-worker2" "linkerd-pki-worker" "linkerd-pki-control-plane"]
+context nachher: [error: current-context is not set]
+E1106 10:50:49.060611  561230 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
+E1106 10:50:49.060911  561230 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp [::1]:8080: connect: connection refused"
+ENDE

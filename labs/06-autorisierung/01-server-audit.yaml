@@ -1,0 +1,13 @@
+# Schritt 1: Server im Audit-Modus. Nichts wird blockiert, Verstöße werden nur markiert.
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata:
+  name: voting-grpc
+  namespace: emojivoto
+spec:
+  podSelector:
+    matchLabels:
+      app: voting-svc
+  port: grpc
+  proxyProtocol: gRPC
+  accessPolicy: audit

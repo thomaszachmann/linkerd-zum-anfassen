@@ -1,0 +1,22 @@
+# HTTPS bleibt für den Proxy undurchsichtig. Freigegeben wird deshalb per TLS-Hostname (SNI).
+# Hinweis: Die Linkerd-Doku zeigt hier noch v1alpha2. Gateway API 1.5.1 liefert im
+# Standard-Kanal nur noch v1 aus.
+apiVersion: gateway.networking.k8s.io/v1
+kind: TLSRoute
+metadata:
+  name: tls-egress
+  namespace: egress-test
+spec:
+  hostnames:
+    - httpbin.org
+  parentRefs:
+    - name: all-egress-traffic
+      kind: EgressNetwork
+      group: policy.linkerd.io
+      namespace: egress-test
+      port: 443
+  rules:
+    - backendRefs:
+        - kind: EgressNetwork
+          group: policy.linkerd.io
+          name: all-egress-traffic

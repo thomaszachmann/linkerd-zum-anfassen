@@ -1,0 +1,133 @@
+
+##### metrik-namen
+control_identity_cert_expiration_timestamp_seconds 1794042435.0
+control_identity_cert_refresh_timestamp_seconds 1793956015.5212224
+control_identity_cert_refreshes_total{result="ok"} 1
+control_identity_cert_refreshes_total{result="error"} 0
+control_identity_balancer_endpoints{endpoint_state="ready",addr="linkerd-identity-headless.linkerd.svc.cluster.local:8080"} 0
+control_identity_balancer_endpoints{endpoint_state="pending",addr="linkerd-identity-headless.linkerd.svc.cluster.local:8080"} 0
+control_identity_balancer_p2c_endpoints{addr="linkerd-identity-headless.linkerd.svc.cluster.local:8080"} 0
+control_identity_balancer_p2c_updates_total{op="Reset",addr="linkerd-identity-headless.linkerd.svc.cluster.local:8080"} 1
+control_identity_balancer_p2c_updates_total{op="Add",addr="linkerd-identity-headless.linkerd.svc.cluster.local:8080"} 0
+control_identity_balancer_p2c_updates_total{op="Remove",addr="linkerd-identity-headless.linkerd.svc.cluster.local:8080"} 0
+# HELP control_identity_cert_expiration_timestamp_seconds Time when this proxy's current mTLS identity certificate will expire (in seconds s
+# TYPE control_identity_cert_expiration_timestamp_seconds gauge
+# HELP control_identity_cert_refresh_timestamp_seconds Time when this proxy's current mTLS identity certificate was last updated.
+# TYPE control_identity_cert_refresh_timestamp_seconds gauge
+# HELP control_identity_cert_refreshes The total number of times this proxy's mTLS identity certificate has been refreshed by the Identity p
+# TYPE control_identity_cert_refreshes counter
+
+##### api-resources httproute
+NAME                                SHORTNAMES                 APIVERSION                        NAMESPACED   KIND
+namespaces                          ns                         v1                                false        Namespace
+httproutes                                                     gateway.networking.k8s.io/v1      true         HTTPRoute
+httproutes                                                     policy.linkerd.io/v1beta3         true         HTTPRoute
+namespaces                                                     tap.linkerd.io/v1alpha1           false        Tap
+
+##### K12 hostname
+1096
+
+##### K4 top mit tty
+Script started on 2026-11-06 10:30:57+01:00 [COMMAND="timeout 8 linkerd viz -n emojivoto top deploy/web" <not executed o
+  # display traffic for the web deployment in the default namespace
+  linkerd viz top deploy/web
+  # display traffic for the web-dlbvj pod in the default namespace
+  linkerd viz top pod/web-dlbvj
+
+##### K10 cb nochmal, vor annotation policy
+deployment.apps/slow-cooker created
+deployment "slow-cooker" successfully rolled out
+deployment "bad" successfully rolled out
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS    IMAGES                        SELECTO
+deployment.apps/bad           1/1     1            1           6s    terminus      buoyantio/bb:v0.0.6           class=b
+deployment.apps/good          1/1     1            1           6s    terminus      buoyantio/bb:v0.0.6           class=g
+deployment.apps/slow-cooker   1/1     1            1           6s    slow-cooker   buoyantio/slow_cooker:1.3.0   app=slo
+
+NAME                               READY   STATUS    RESTARTS   AGE   IP            NODE                  NOMINATED NODE
+pod/bad-847db4c74f-49hc5           2/2     Running   0          5s    10.244.1.28   linkerd-lab-worker2   <none>        
+pod/good-5c88c59585-79jth          2/2     Running   0          5s    10.244.1.29   linkerd-lab-worker2   <none>        
+pod/slow-cooker-6567bd76f6-p59h5   2/2     Running   0          5s    10.244.2.22   linkerd-lab-worker    <none>        
+null
+{"Kind":{"FirstAvailable":{"backends":[{"backend":{"metadata":{"Kind":{"Resource":{"group":"core","kind":"Service","name":"bb","namespace":"circuit-breaking-demo","port":8080}}},"Kind":{"Balancer":{"discovery":{"Kind":{"Dst":{"path":"bb.circuit-breaking-demo.svc.cluster.local:8080"}}},"Load":{"PeakEwma":{"default_rtt":{"nanos":30000000},"decay":{"seconds":10}}}}},"queue":{"capacity":100,"failfast_timeout":{"seconds":3}}}}]}}}
+NAME          MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+bad              1/1     3.95%   7.6rps           1ms           1ms          26ms          2
+good             1/1   100.00%   3.0rps           1ms           1ms           4ms          3
+slow-cooker      1/1   100.00%   0.3rps           1ms           4ms           4ms          1
+NAME         SERVICE  ROUTE      TYPE  BACKEND  SUCCESS   RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+slow-cooker  bb:8080  [default]                  32.94%  9.97         25ms         48ms         49ms     0.00%    0.00%  
+                      └─────────────►  bb:8080   32.94%  9.97         12ms         24ms         25ms     0.00%           
+2026-11-06T09:31:36Z    2      0/101/0 100 100% 10s   0 [  1   8  11   16 ]   16      0 
+2026-11-06T09:31:46Z    3     45/55/0 100 100% 10s   0 [  1   6  15   30 ]   30      0 
+2026-11-06T09:31:56Z    4      0/100/0 100 100% 10s   0 [  1   3   6   45 ]   45      0 
+2026-11-06T09:32:06Z    5     59/41/0 100 100% 10s   0 [  1   6  42   61 ]   61      0 
+outbound_http_route_request_statuses_total{parent_group="core",parent_kind="Service",parent_namespace="circuit-breaking-demo",parent_name="bb",parent_port="8080",parent_section_name="",route_group="",route_kind="default",route_namespace="",route_name="http",ho
+outbound_http_route_request_statuses_total{parent_group="core",parent_kind="Service",parent_namespace="circuit-breaking-demo",parent_name="bb",parent_port="8080",parent_section_name="",route_group="",route_kind="default",route_namespace="",route_name="http",ho
+outbound_http_balancer_endpoints{endpoint_state="pending",parent_group="core",parent_kind="Service",parent_namespace="circuit-breaking-demo",parent_name="bb",parent_port="8080",parent_section_name="",backend_group="core",backend_kind="Service",backend_namespac
+outbound_http_balancer_endpoints{endpoint_state="ready",parent_group="core",parent_kind="Service",parent_namespace="circuit-breaking-demo",parent_name="bb",parent_port="8080",parent_section_name="",backend_group="core",backend_kind="Service",backend_namespace=
+response_total{direction="inbound",target_addr="0.0.0.0:4191",target_ip="0.0.0.0",target_port="4191",tls="true",client_id="prometheus.linkerd-viz.serviceaccount.identity.linkerd.cluster.local",srv_group="",srv_kind="defa
+response_total{direction="inbound",target_addr="10.244.1.28:8080",target_ip="10.244.1.28",target_port="8080",tls="true",client_id="default.circuit-breaking-demo.serviceaccount.identity.linkerd.cluster.local",srv_group=""
+response_total{direction="inbound",target_addr="0.0.0.0:4191",target_ip="0.0.0.0",target_port="4191",tls="no_identity",no_tls_reason="no_tls_from_remote",srv_group="",srv_kind="default",srv_name="all-unauthenticated",srv
+error: container bad is not valid for pod bad-847db4c74f-49hc5
+
+##### K9 retries ausgeruht + timeout code + serviceprofile
+deployment.apps/last-slow created
+deployment "flaky" successfully rolled out
+deployment "slow" successfully rolled out
+httproute.gateway.networking.k8s.io/flaky-retries created
+NAME        SERVICE     ROUTE          TYPE       BACKEND     SUCCESS    RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+last-flaky  flaky:8080  flaky-retries  HTTPRoute               96.49%   9.98         29ms        350ms        470ms     0.00%   28.35%  
+                        └──────────────────────►  flaky:8080   69.14%  13.93         17ms         82ms         99ms     0.00%           
+NAME        SERVICE     ROUTE          TYPE       BACKEND     SUCCESS    RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+last-flaky  flaky:8080  flaky-retries  HTTPRoute               97.33%   9.98         31ms        380ms        476ms     0.00%   29.78%  
+                        └──────────────────────►  flaky:8080   68.35%  14.22         18ms         83ms         97ms     0.00%           
+httproute.gateway.networking.k8s.io/slow-timeout created
+504 0.474249
+504 0.469251
+504 0.466572
+HTTP/1.1 504 Gateway Timeout
+l5d-proxy-error: logical service 10.96.161.181:8080: route HTTPRoute.resilienz.slow-timeout: backend Service.resilienz.slow:8080: Service.resilienz.slow:8080: timed out waiting for response headers: request timeout: 500ms
+content-length: 0
+date: Fri, 06 Nov 2026 09:36:10 GMT
+
+--- ServiceProfile uebersteuert Retries?
+{"Kind":{"Resource":{"group":"gateway.networking.k8s.io","kind":"HTTPRoute","name":"flaky-retries","namespace":"resilienz"}}}
+serviceprofile.linkerd.io/flaky.resilienz.svc.cluster.local created
+NAME        SERVICE     ROUTE          TYPE       BACKEND     SUCCESS    RPS  LATENCY_P50  LATENCY_P95  LATENCY_P99  TIMEOUTS  RETRIES  
+last-flaky  flaky:8080  flaky-retries  HTTPRoute               97.31%   9.92         31ms        389ms        478ms     0.00%   28.23%  
+                        └──────────────────────►  flaky:8080   69.84%  13.82         18ms         87ms        144ms     0.00%           
+serviceprofile.linkerd.io "flaky.resilienz.svc.cluster.local" deleted from resilienz namespace
+
+##### K8 deny-policy prometheus
+namespace/dtest created
+namespace/dtest annotated
+deployment.apps/nginx created
+deployment "nginx" successfully rolled out
+linkerd-viz
+-----------
+
+linkerd-viz-data-plane
+----------------------
+‼ prometheus is authorized to scrape data plane pods
+    prometheus may not be authorized to scrape the following pods:
+	* nginx-6658f59756-l6rfp
+    consider running `linkerd viz allow-scrapes` to authorize prometheus scrapes
+    see https://linkerd.io/2/checks/#l5d-viz-data-plane-prom-authz for hints
+‼ data plane proxy metrics are present in Prometheus
+    Data plane metrics not found for dtest/nginx-6658f59756-l6rfp.
+    see https://linkerd.io/2/checks/#l5d-data-plane-prom for hints
+
+viz_check_rc=0
+NAME    MESHED   SUCCESS   RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+nginx      1/1         -     -             -             -             -          -
+server.policy.linkerd.io/proxy-admin created
+httproute.policy.linkerd.io/proxy-metrics created
+httproute.policy.linkerd.io/proxy-probes created
+authorizationpolicy.policy.linkerd.io/prometheus-scrape created
+authorizationpolicy.policy.linkerd.io/proxy-probes created
+NAME    MESHED   SUCCESS      RPS   LATENCY_P50   LATENCY_P95   LATENCY_P99   TCP_CONN
+nginx      1/1   100.00%   0.1rps           1ms           1ms           1ms          1
+√ data plane proxy metrics are present in Prometheus
+
+Status check results are √
+namespace "dtest" deleted
+ENDE

@@ -1,0 +1,20 @@
+# 90 % bleiben auf v1, 10 % gehen an v2.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bb-route
+  namespace: traffic-shift-demo
+spec:
+  parentRefs:
+    - name: bb
+      kind: Service
+      group: core
+      port: 8080
+  rules:
+    - backendRefs:
+        - name: bb
+          port: 8080
+          weight: 90
+        - name: bb-v2
+          port: 8080
+          weight: 10

@@ -1,0 +1,29 @@
+# Ein gemeshter Test-Client mit eigener Identität (ServiceAccount lab-client).
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lab-client
+  namespace: emojivoto
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-client
+  namespace: emojivoto
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lab-client
+  template:
+    metadata:
+      labels:
+        app: lab-client
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      serviceAccountName: lab-client
+      containers:
+        - name: curl
+          image: curlimages/curl:8.23.0
+          command: ["sh", "-c", "sleep infinity"]

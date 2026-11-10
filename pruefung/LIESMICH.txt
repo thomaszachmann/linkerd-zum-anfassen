@@ -1,0 +1,12 @@
+Referenzdaten für pruefe-labs.rb holen (reine Daten, kein Cluster nötig):
+
+  R=refdata; T=edge-26.11.1; mkdir -p $R/crds $R/gw
+  U=https://raw.githubusercontent.com/linkerd/linkerd2/$T/charts/linkerd-crds/templates
+  for f in authorization-policy egress-network http-local-ratelimit-policy httproute \
+           meshtls-authentication network-authentication server; do
+    curl -sSfL -o $R/crds/$f.yaml $U/policy/$f.yaml
+  done
+  curl -sSfL -o $R/gw/standard-install.yaml \
+    https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
+
+  ruby pruefung/pruefe-labs.rb $R
