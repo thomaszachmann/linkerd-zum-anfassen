@@ -1,0 +1,4 @@
+gateway:
+  serviceType: LoadBalancer   # k3s-ServiceLB gibt die IP der VM
+  probe:
+    port: 4191                # Gegenseite prüft diesen Port (Tag 12)

@@ -1,0 +1,6 @@
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: web-http, namespace: tag10}
+spec:
+  podSelector: {matchLabels: {app: web}}
+  port: http

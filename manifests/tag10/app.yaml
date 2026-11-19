@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: web, namespace: tag10}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: notes-api, namespace: tag10}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: notes-api, namespace: tag10}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: notes-api}}
+  template:
+    metadata: {labels: {app: notes-api}}
+    spec:
+      serviceAccountName: notes-api
+      containers:
+      - name: notes-api
+        image: ghcr.io/thomaszachmann/notes-api:0.7.1
+        env: [{name: NOTES_API_KEY, value: lab-key-123}]
+        ports: [{containerPort: 8080, name: http}]
+        readinessProbe:
+          httpGet: {path: /healthz, port: http}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: notes-api, namespace: tag10}
+spec:
+  selector: {app: notes-api}
+  ports: [{port: 80, targetPort: http, name: http}]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: web-conf, namespace: tag10}
+data:
+  default.conf: |
+    server {
+      listen 8080;
+      location = / { default_type text/plain; return 200 "notes web\n"; }
+      location /api/ {
+        proxy_set_header X-API-Key lab-key-123;
+        proxy_pass http://notes-api.tag10.svc.cluster.local/;
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: web, namespace: tag10}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: web}}
+  template:
+    metadata: {labels: {app: web}}
+    spec:
+      serviceAccountName: web
+      containers:
+      - name: web
+        image: docker.io/nginxinc/nginx-unprivileged:1.31.7-alpine
+        ports: [{containerPort: 8080, name: http}]
+        volumeMounts: [{name: conf, mountPath: /etc/nginx/conf.d}]
+      volumes: [{name: conf, configMap: {name: web-conf}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: web, namespace: tag10}
+spec:
+  selector: {app: web}
+  ports: [{port: 80, targetPort: http, name: http}]

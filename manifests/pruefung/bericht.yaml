@@ -1,0 +1,27 @@
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata: {name: bericht, namespace: pruefung}
+spec:
+  identityRefs: [{kind: ServiceAccount, name: bericht}]
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: helper-von-bericht, namespace: pruefung}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: helper-http}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: bericht}
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: HTTPLocalRateLimitPolicy
+metadata: {name: helper-rl, namespace: pruefung}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: helper-http}
+  total:
+    requestsPerSecond: 50
+  identity:
+    requestsPerSecond: 2
+  overrides:
+  - requestsPerSecond: 20
+    clientRefs:
+    - {kind: ServiceAccount, name: web}

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: plain
+  name: plain
+  namespace: tag02
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plain
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: plain
+    spec:
+      containers:
+      - image: registry.k8s.io/pause:3.10
+        name: pause
+        resources: {}
+status: {}

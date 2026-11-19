@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: fremd, namespace: tag06}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: fremd}}
+  template:
+    metadata: {labels: {app: fremd}}
+    spec:
+      serviceAccountName: fremd
+      containers:
+      - name: curl
+        image: docker.io/curlimages/curl:8.23.0
+        command: [sleep, infinity]
+      - name: psql
+        image: docker.io/library/postgres:18.7-alpine
+        command: [sleep, infinity]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ohne, namespace: tag06}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: ohne}}
+  template:
+    metadata:
+      labels: {app: ohne}
+      annotations: {linkerd.io/inject: disabled}
+    spec:
+      containers:
+      - name: curl
+        image: docker.io/curlimages/curl:8.23.0
+        command: [sleep, infinity]
+      - name: psql
+        image: docker.io/library/postgres:18.7-alpine
+        command: [sleep, infinity]

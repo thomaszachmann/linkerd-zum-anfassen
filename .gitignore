@@ -1,4 +1,5 @@
-refdata/
 .DS_Store
 ._*
 *.key
+*kubeconfig*
+link*.yaml

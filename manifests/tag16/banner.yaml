@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: banner, namespace: tag16}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: banner}}
+  template:
+    metadata: {labels: {app: banner}}
+    spec:
+      serviceAccountName: banner
+      containers:
+      - name: banner
+        image: docker.io/library/busybox:1.37
+        command: [nc, -lk, -p, "2525", -e, echo, "220 banner bereit"]
+        ports: [{containerPort: 2525, name: smtp}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: banner, namespace: tag16}
+spec:
+  selector: {app: banner}
+  ports: [{port: 2525, targetPort: smtp, name: smtp}]
+---
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: banner, namespace: tag16}
+spec:
+  podSelector: {matchLabels: {app: banner}}
+  port: smtp
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: banner-von-last, namespace: tag16}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: banner}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: last}

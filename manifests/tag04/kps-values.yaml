@@ -1,0 +1,26 @@
+alertmanager:
+  enabled: false
+defaultRules:
+  create: false
+grafana:
+  adminPassword: lab-grafana-123
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+nodeExporter:
+  enabled: false
+prometheus:
+  prometheusSpec:
+    podMonitorSelectorNilUsesHelmValues: false
+    resources:
+      limits:
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    retention: 12h

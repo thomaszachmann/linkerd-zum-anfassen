@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: statistik, namespace: pruefung}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: statistik}}
+  template:
+    metadata:
+      labels: {app: statistik}
+      annotations: {config.linkerd.io/skip-outbound-ports: "5432"}
+    spec:
+      serviceAccountName: statistik
+      containers:
+      - name: statistik
+        image: docker.io/library/postgres:18.7-alpine
+        env:
+        - {name: PGCONNECT_TIMEOUT, value: "3"}
+        - name: PGPASSWORD
+          valueFrom: {secretKeyRef: {name: notes-db, key: password}}
+        command: [sh, -c]
+        args:
+        - |
+          while true; do
+            n=$(psql -h postgres -U notes -d notes -tAc 'select count(*) from notes' 2>&1)
+            echo "$(date +%T) $n"
+            sleep 10
+          done

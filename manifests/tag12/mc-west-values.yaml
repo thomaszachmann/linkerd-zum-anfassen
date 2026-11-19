@@ -1,0 +1,7 @@
+controllers:
+- link:
+    ref:
+      name: ost
+  gateway:
+    probe:
+      port: 30980

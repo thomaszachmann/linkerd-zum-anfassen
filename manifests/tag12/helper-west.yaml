@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tag12
+  annotations: {linkerd.io/inject: enabled}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: helper, namespace: tag12}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: helper, namespace: tag12}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: helper}}
+  template:
+    metadata: {labels: {app: helper}}
+    spec:
+      serviceAccountName: helper
+      containers:
+      - name: helper
+        image: ghcr.io/mccutchen/go-httpbin:2.26.0
+        env: [{name: USE_REAL_HOSTNAME, value: "true"}]
+        ports: [{containerPort: 8080, name: http}]
+        readinessProbe:
+          httpGet: {path: /status/200, port: http}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: helper, namespace: tag12}
+spec:
+  selector: {app: helper}
+  ports: [{port: 80, targetPort: http, name: http}]

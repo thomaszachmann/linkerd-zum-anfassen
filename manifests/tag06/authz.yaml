@@ -1,0 +1,49 @@
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata: {name: last, namespace: notes}
+spec:
+  identityRefs: [{kind: ServiceAccount, name: last}]
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata: {name: web, namespace: notes}
+spec:
+  identityRefs: [{kind: ServiceAccount, name: web}]
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata: {name: notes-api, namespace: notes}
+spec:
+  identityRefs: [{kind: ServiceAccount, name: notes-api}]
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: web-von-last, namespace: notes}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: web-http}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: last}
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: notes-api-von-web, namespace: notes}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: notes-api-http}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: web}
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: helper-von-web, namespace: notes}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: helper-http}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: web}
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: postgres-von-notes-api, namespace: notes}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: postgres}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: notes-api}

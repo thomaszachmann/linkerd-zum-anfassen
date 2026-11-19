@@ -1,0 +1,109 @@
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: web-http, namespace: pruefung}
+spec:
+  podSelector: {matchLabels: {app: web}}
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: deny
+---
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: notes-api-http, namespace: pruefung}
+spec:
+  podSelector: {matchLabels: {app: notes-api}}
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: deny
+---
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: helper-http, namespace: pruefung}
+spec:
+  podSelector: {matchLabels: {app: helper}}
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: deny
+---
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: postgres, namespace: pruefung}
+spec:
+  podSelector: {matchLabels: {app: postgres}}
+  port: postgres
+  proxyProtocol: opaque
+  accessPolicy: deny
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata: {name: last, namespace: pruefung}
+spec:
+  identityRefs: [{kind: ServiceAccount, name: last}]
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata: {name: web, namespace: pruefung}
+spec:
+  identityRefs: [{kind: ServiceAccount, name: web}]
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata: {name: notes-api, namespace: pruefung}
+spec:
+  identityRefs: [{kind: ServiceAccount, name: notes-api}]
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: web-von-last, namespace: pruefung}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: web-http}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: last}
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: notes-api-von-web, namespace: pruefung}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: notes-api-http}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: web}
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: helper-von-web, namespace: pruefung}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: helper-http}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: web}
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: postgres-von-notes-api, namespace: pruefung}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: postgres}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: notes-api}
+---
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: proxy-admin, namespace: pruefung}
+spec:
+  podSelector: {}
+  port: linkerd-admin
+  proxyProtocol: HTTP/1
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: NetworkAuthentication
+metadata: {name: pod-netz, namespace: pruefung}
+spec:
+  networks:
+  - cidr: 10.0.0.0/16
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: admin-von-prometheus, namespace: pruefung}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: proxy-admin}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: NetworkAuthentication, name: pod-netz}
+---

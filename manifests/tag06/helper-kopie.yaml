@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: helper, namespace: tag06}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: helper}}
+  template:
+    metadata: {labels: {app: helper}}
+    spec:
+      containers:
+      - name: helper
+        image: ghcr.io/mccutchen/go-httpbin:2.26.0
+        ports: [{containerPort: 8080, name: http}]
+        readinessProbe:
+          httpGet: {path: /status/200, port: http}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: helper, namespace: tag06}
+spec:
+  selector: {app: helper}
+  ports: [{port: 80, targetPort: http, name: http}]

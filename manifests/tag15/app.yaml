@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tag15
+  annotations: {linkerd.io/inject: enabled}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: helper, namespace: tag15}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: last, namespace: tag15}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: helper, namespace: tag15}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: helper}}
+  template:
+    metadata: {labels: {app: helper}}
+    spec:
+      serviceAccountName: helper
+      containers:
+      - name: helper
+        image: ghcr.io/mccutchen/go-httpbin:2.26.0
+        ports: [{containerPort: 8080, name: http}]
+        readinessProbe:
+          httpGet: {path: /status/200, port: http}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: helper, namespace: tag15}
+spec:
+  selector: {app: helper}
+  ports: [{port: 80, targetPort: http, name: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: last, namespace: tag15}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: last}}
+  template:
+    metadata: {labels: {app: last}}
+    spec:
+      serviceAccountName: last
+      containers:
+      - name: last
+        image: docker.io/curlimages/curl:8.23.0
+        command: [sh, -c]
+        args:
+        - |
+          while true; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -m 5 http://helper/get)
+            echo "$(date +%T) /get $code"
+            sleep 0.2
+          done

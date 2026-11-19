@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: migrate-alt, namespace: tag02}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: migrate-alt}}
+  template:
+    metadata:
+      labels: {app: migrate-alt}
+      annotations:
+        config.beta.linkerd.io/proxy-enable-native-sidecar: "false"
+    spec:
+      initContainers:
+      - name: migrate
+        image: ghcr.io/thomaszachmann/notes-api:0.7.1
+        args: [migrate]
+        env:
+        - name: NOTES_DB_URL
+          valueFrom: {secretKeyRef: {name: notes-db, key: url}}
+      containers:
+      - name: pause
+        image: registry.k8s.io/pause:3.10

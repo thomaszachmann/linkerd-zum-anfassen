@@ -1,0 +1,16 @@
+apiVersion: policy.linkerd.io/v1alpha1
+kind: EgressNetwork
+metadata: {name: internet, namespace: pruefung}
+spec:
+  trafficPolicy: Deny
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: TLSRoute
+metadata: {name: example-com, namespace: pruefung}
+spec:
+  parentRefs:
+  - {group: policy.linkerd.io, kind: EgressNetwork, name: internet, port: 443}
+  hostnames: [example.com]
+  rules:
+  - backendRefs:
+    - {group: policy.linkerd.io, kind: EgressNetwork, name: internet}

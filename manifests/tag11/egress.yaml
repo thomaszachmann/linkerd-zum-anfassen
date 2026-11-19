@@ -1,0 +1,5 @@
+apiVersion: policy.linkerd.io/v1alpha1
+kind: EgressNetwork
+metadata: {name: internet, namespace: tag11}
+spec:
+  trafficPolicy: Allow

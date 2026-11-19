@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: notes-api, namespace: tag09}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: last, namespace: tag09}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: notes-api-v1, namespace: tag09}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: notes-api, version: v1}}
+  template:
+    metadata: {labels: {app: notes-api, version: v1}}
+    spec:
+      serviceAccountName: notes-api
+      containers:
+      - name: notes-api
+        image: ghcr.io/thomaszachmann/notes-api:0.5.2
+        env: [{name: NOTES_API_KEY, value: lab-key-123}]
+        ports: [{containerPort: 8080, name: http}]
+        readinessProbe:
+          httpGet: {path: /healthz, port: http}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: notes-api-v2, namespace: tag09}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: notes-api, version: v2}}
+  template:
+    metadata: {labels: {app: notes-api, version: v2}}
+    spec:
+      serviceAccountName: notes-api
+      containers:
+      - name: notes-api
+        image: ghcr.io/thomaszachmann/notes-api:0.7.1
+        env: [{name: NOTES_API_KEY, value: lab-key-123}]
+        ports: [{containerPort: 8080, name: http}]
+        readinessProbe:
+          httpGet: {path: /healthz, port: http}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: notes-api, namespace: tag09}
+spec:
+  selector: {app: notes-api, version: v1}
+  ports: [{port: 80, targetPort: http, name: http}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: notes-api-v2, namespace: tag09}
+spec:
+  selector: {app: notes-api, version: v2}
+  ports: [{port: 80, targetPort: http, name: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: last, namespace: tag09}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: last}}
+  template:
+    metadata: {labels: {app: last}}
+    spec:
+      serviceAccountName: last
+      containers:
+      - name: last
+        image: docker.io/curlimages/curl:8.23.0
+        env: [{name: URL, value: http://notes-api/version}]
+        command: [sh, -c]
+        args:
+        - |
+          while true; do
+            code=$(curl -s -m 5 -o /tmp/v -w '%{http_code}' $URL)
+            echo "$(date +%T) $(cat /tmp/v) $code"
+            sleep 0.5
+          done

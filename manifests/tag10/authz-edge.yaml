@@ -1,0 +1,14 @@
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata: {name: edge, namespace: tag10}
+spec:
+  identityRefs:
+  - {kind: ServiceAccount, name: edge}
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: web-from-edge, namespace: tag10}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: web-http}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: MeshTLSAuthentication, name: edge}

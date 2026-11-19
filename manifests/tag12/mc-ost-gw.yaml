@@ -1,0 +1,7 @@
+gateway:
+  enabled: true
+  serviceType: NodePort
+controllers:
+- link:
+    ref:
+      name: west

@@ -1,0 +1,6 @@
+gateway:
+  enabled: false
+controllers:
+- link:
+    ref:
+      name: west

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: web-conf, namespace: notes}
+data:
+  default.conf: |
+    server {
+      listen 8080;
+      location = / { default_type text/plain; return 200 "notes web\n"; }
+      location /api/ {
+        proxy_set_header X-API-Key lab-key-123;
+        proxy_pass http://notes-api.notes.svc.cluster.local/;
+      }
+      location /flaky {
+        proxy_pass http://helper.notes.svc.cluster.local/unstable?failure_rate=0.3;
+      }
+      location /slow {
+        proxy_pass http://helper.notes.svc.cluster.local/delay/2;
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: web, namespace: notes}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: web}}
+  template:
+    metadata: {labels: {app: web}}
+    spec:
+      containers:
+      - name: web
+        image: docker.io/nginxinc/nginx-unprivileged:1.31.7-alpine
+        ports: [{containerPort: 8080, name: http}]
+        volumeMounts: [{name: conf, mountPath: /etc/nginx/conf.d}]
+      volumes: [{name: conf, configMap: {name: web-conf}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: web, namespace: notes}
+spec:
+  selector: {app: web}
+  ports: [{port: 80, targetPort: http, name: http}]

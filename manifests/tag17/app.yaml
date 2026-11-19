@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: server-ohne, namespace: tag17}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: server-ohne}}
+  template:
+    metadata: {labels: {app: server-ohne}}
+    spec:
+      nodeSelector: {kubernetes.io/hostname: worker2}
+      containers:
+      - name: httpbin
+        image: ghcr.io/mccutchen/go-httpbin:2.26.0
+        ports: [{containerPort: 8080, name: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: server-mit, namespace: tag17}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: server-mit}}
+  template:
+    metadata:
+      labels: {app: server-mit}
+      annotations: {linkerd.io/inject: enabled}
+    spec:
+      nodeSelector: {kubernetes.io/hostname: worker2}
+      containers:
+      - name: httpbin
+        image: ghcr.io/mccutchen/go-httpbin:2.26.0
+        ports: [{containerPort: 8080, name: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: last-ohne, namespace: tag17}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: last-ohne}}
+  template:
+    metadata: {labels: {app: last-ohne}}
+    spec:
+      nodeSelector: {kubernetes.io/hostname: worker1}
+      containers:
+      - name: fortio
+        image: docker.io/fortio/fortio:1.69.5
+        args: [server]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: last-mit, namespace: tag17}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: last-mit}}
+  template:
+    metadata:
+      labels: {app: last-mit}
+      annotations: {linkerd.io/inject: enabled}
+    spec:
+      nodeSelector: {kubernetes.io/hostname: worker1}
+      containers:
+      - name: fortio
+        image: docker.io/fortio/fortio:1.69.5
+        args: [server]

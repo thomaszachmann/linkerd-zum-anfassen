@@ -1,0 +1,22 @@
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: helper-http, namespace: tag08}
+spec:
+  podSelector: {matchLabels: {app: helper}}
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: all-unauthenticated
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: HTTPLocalRateLimitPolicy
+metadata: {name: helper-rl, namespace: tag08}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: helper-http}
+  total:
+    requestsPerSecond: 20
+  identity:
+    requestsPerSecond: 1
+  overrides:
+  - requestsPerSecond: 4
+    clientRefs:
+    - {kind: ServiceAccount, name: web}

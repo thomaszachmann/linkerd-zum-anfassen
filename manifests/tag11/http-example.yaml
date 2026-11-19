@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata: {name: example-http, namespace: tag11}
+spec:
+  parentRefs:
+  - {group: policy.linkerd.io, kind: EgressNetwork, name: internet, port: 80}
+  hostnames: [example.com]
+  rules:
+  - matches:
+    - {method: GET, path: {type: PathPrefix, value: /}}
+    backendRefs:
+    - {group: policy.linkerd.io, kind: EgressNetwork, name: internet}
+  - matches:
+    - {path: {type: PathPrefix, value: /version}}
+    backendRefs:
+    - {name: notes-api, port: 80}

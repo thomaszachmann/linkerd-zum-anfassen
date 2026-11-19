@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: kaputt-conf, namespace: pruefung}
+data:
+  default.conf: |
+    server {
+      listen 8080;
+      location = /healthz { return 200 "ok\n"; }
+      location / { return 500 "kaputt\n"; }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: notes-api-kaputt, namespace: pruefung}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: notes-api, variante: kaputt}}
+  template:
+    metadata: {labels: {app: notes-api, variante: kaputt}}
+    spec:
+      serviceAccountName: notes-api
+      containers:
+      - name: notes-api
+        image: docker.io/nginxinc/nginx-unprivileged:1.31.7-alpine
+        ports: [{containerPort: 8080, name: http}]
+        readinessProbe:
+          httpGet: {path: /healthz, port: http}
+        volumeMounts: [{name: conf, mountPath: /etc/nginx/conf.d}]
+      volumes: [{name: conf, configMap: {name: kaputt-conf}}]

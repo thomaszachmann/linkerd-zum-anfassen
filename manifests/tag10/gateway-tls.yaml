@@ -1,0 +1,14 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata: {name: notes, namespace: tag10}
+spec:
+  gatewayClassName: cilium
+  listeners:
+  - {name: http, protocol: HTTP, port: 80}
+  - name: https
+    protocol: HTTPS
+    port: 443
+    hostname: notes.lab.internal
+    tls:
+      mode: Terminate
+      certificateRefs: [{name: notes-tls}]

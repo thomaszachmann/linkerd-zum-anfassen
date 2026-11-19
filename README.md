@@ -1,39 +1,34 @@
 # Linkerd zum Anfassen – Begleitcode
 
-Begleitcode zum Buch **Linkerd zum Anfassen** – Service Mesh in der Praxis: vom ersten Sidecar bis zum Betrieb. Teil der Reihe IT-Trainingslager von Thomas Zachmann.
+Begleitcode zum Buch **Linkerd zum Anfassen** – Service Mesh im echten Cluster: mTLS,
+Traffic und Multicluster. Teil der Reihe IT-Trainingslager von Thomas Zachmann.
 
-Das Buch ist kostenlos als PDF und EPUB:
+Buchseite: https://it-trainingslager.de/buecher/linkerd ·
+English edition: https://itdrills.com/books/linkerd
 
-- Buchseite: https://it-trainingslager.de/buecher/linkerd
-- Hands-On-Reihe: https://nyrvex.de/hands-on
-
-Der Code begleitet das Buch; Erklärungen und Übungen stehen im Buch.
+Das Buch ist kostenlos, als Kurs im Browser sowie als PDF und EPUB.
 
 ## Inhalt
 
-- `labs/00-cluster/` – kind-Cluster mit gepinntem Node-Image (Kubernetes 1.35.8) und gemeshter Test-Client (Kapitel 2, 6)
-- `labs/06-autorisierung/` – Server, MeshTLSAuthentication, AuthorizationPolicy, Autorisierung pro Route (Kapitel 6)
-- `labs/09-resilienz/` – Retries und Timeouts mit absichtlich schlechten Backends (Kapitel 9)
-- `labs/10-circuit-breaker/` – ein gesunder und ein kaputter Pod hinter einem Service (Kapitel 10)
-- `labs/10-rate-limit/` – HTTPLocalRateLimitPolicy (Kapitel 10)
-- `labs/11-traffic/` – Traffic Shifting 90/10, 100 Prozent und per Header (Kapitel 11)
-- `labs/12-egress/` – EgressNetwork, HTTPRoute und TLSRoute für ausgehenden Verkehr (Kapitel 12)
-- `pruefung/` – Schemaprüfung der Manifeste (`pruefe-labs.rb`) und die Laufprotokolle des Prüfstands (Anhang B)
+- `manifests/tagNN/` – die Manifeste und Values-Dateien so, wie sie im Labor für das
+  jeweilige Kapitel liefen (Tag 0 bis 18), `manifests/pruefung/` für Anhang B.
 
-## Schnellstart
+Im Buch tippst du alles selbst – das ist das Training. Die Dateien hier helfen beim
+Vergleichen, wenn etwas nicht so aussieht wie im Buch. Generierte Manifeste
+(`linkerd install`, `linkerd viz install`) und Dateien mit privaten Schlüsseln oder
+Zugangsdaten sind bewusst nicht enthalten.
 
-```bash
-git clone https://github.com/thomaszachmann/linkerd-zum-anfassen.git
-cd linkerd-zum-anfassen
-kind create cluster --config labs/00-cluster/kind-config.yaml
-```
+Alle Passwörter und Schlüssel im Buch (z. B. `lab-db-123`, `lab-key-123`,
+`lab-grafana-123`) sind Laborwerte – nie in Produktion verwenden.
 
-Alle Befehle im Buch gehen davon aus, dass du in diesem Ordner stehst. Details stehen in Kapitel 2.
+Getestet mit Linkerd `edge-26.11.2` auf kubeadm/Kubernetes 1.37.2 mit Cilium 1.20.5
+und k3s v1.37.2, amd64 (Befehle im Buch sind architekturneutral).
 
-## Versionen
+Die erste Fassung dieses Repos (kind-Labor, Stand 6. November 2026) liegt in der
+Git-Historie.
 
-Linkerd `edge-26.11.1` (Linie 2.20), Kubernetes 1.35, Gateway API 1.5.1 (Standard-Kanal), kind 0.33. Die Labs liefen am 6. November 2026 in kind-Clustern; was offen ist, steht in Anhang B des Buchs.
+## Hinweis
 
-## Lizenz
-
-Code: MIT (siehe LICENSE). Das Buch selbst ist kostenlos unter CC BY-ND 4.0 und nicht Teil dieses Repos.
+Linkerd ist ein CNCF-Projekt und eine Marke der Linux Foundation. Dieses Projekt ist
+unabhängig und steht in keiner Verbindung zur Linux Foundation, zur CNCF oder zu
+Anbietern von Linkerd-Distributionen.

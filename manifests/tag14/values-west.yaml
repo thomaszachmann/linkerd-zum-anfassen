@@ -1,0 +1,19 @@
+# Linkerd auf west – Tag 14
+identity:
+  externalCA: true          # Trust Anchor kommt aus der ConfigMap
+  issuer:
+    scheme: kubernetes.io/tls   # Issuer kommt aus dem Secret
+controllerReplicas: 2       # ein Node: 3 wären Etikettenschwindel
+enablePodAntiAffinity: false  # ein Node: harte Anti-Affinity blockiert Replika 2
+identityTrustAnchorsPEM: |
+  -----BEGIN CERTIFICATE-----
+  MIIBjTCCATOgAwIBAgIQLyRZElpiUUQxMTJzAgfRyDAKBggqhkjOPQQDAjAlMSMw
+  IQYDVQQDExpyb290LmxpbmtlcmQuY2x1c3Rlci5sb2NhbDAeFw0yNjExMTkxNTUx
+  NTBaFw0zNjExMTYxNTUxNTBaMCUxIzAhBgNVBAMTGnJvb3QubGlua2VyZC5jbHVz
+  dGVyLmxvY2FsMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEVmzUIKG7OITRzCjG
+  u4uN6IASpergCIcQx9frAYFTpu+44hnxCW52mCNMXkmiNlDGp/wz9t3ffGYmuEXr
+  KRiCuqNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYD
+  VR0OBBYEFEHHPiUXUCj7ksrdQO9CHdA5lF79MAoGCCqGSM49BAMCA0gAMEUCIQCv
+  TJtTC2ILrDMiq5EQEHocuBc9XcRM84NjxL46F3WU8QIgMW9ubKmuxsT9Jq8CAaMG
+  ynIyYiP6lDaK1XC2jxQuW4s=
+  -----END CERTIFICATE-----

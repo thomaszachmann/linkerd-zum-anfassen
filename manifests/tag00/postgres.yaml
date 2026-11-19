@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: postgres, namespace: notes}
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector: {matchLabels: {app: postgres}}
+  template:
+    metadata: {labels: {app: postgres}}
+    spec:
+      containers:
+      - name: postgres
+        image: docker.io/library/postgres:18.7-alpine
+        env:
+        - {name: POSTGRES_USER, value: notes}
+        - {name: POSTGRES_DB, value: notes}
+        - name: POSTGRES_PASSWORD
+          valueFrom: {secretKeyRef: {name: notes-db, key: password}}
+        - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+        ports: [{containerPort: 5432, name: postgres}]
+        readinessProbe:
+          exec: {command: [pg_isready, -U, notes, -d, notes]}
+        volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+  volumeClaimTemplates:
+  - metadata: {name: data}
+    spec:
+      accessModes: [ReadWriteOnce]
+      resources: {requests: {storage: 1Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: postgres, namespace: notes}
+spec:
+  selector: {app: postgres}
+  ports: [{port: 5432, targetPort: postgres, name: postgres}]

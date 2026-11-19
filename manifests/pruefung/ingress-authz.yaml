@@ -1,0 +1,16 @@
+apiVersion: policy.linkerd.io/v1alpha1
+kind: NetworkAuthentication
+metadata: {name: cilium-ingress, namespace: pruefung}
+spec:
+  networks:
+  - cidr: 10.0.0.235/32
+  - cidr: 10.0.1.169/32
+  - cidr: 10.0.2.57/32
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata: {name: web-von-gateway, namespace: pruefung}
+spec:
+  targetRef: {group: policy.linkerd.io, kind: Server, name: web-http}
+  requiredAuthenticationRefs:
+  - {group: policy.linkerd.io, kind: NetworkAuthentication, name: cilium-ingress}

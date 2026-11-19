@@ -1,0 +1,35 @@
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: web-http, namespace: notes}
+spec:
+  podSelector: {matchLabels: {app: web}}
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: deny
+---
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: notes-api-http, namespace: notes}
+spec:
+  podSelector: {matchLabels: {app: notes-api}}
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: deny
+---
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: helper-http, namespace: notes}
+spec:
+  podSelector: {matchLabels: {app: helper}}
+  port: http
+  proxyProtocol: HTTP/1
+  accessPolicy: deny
+---
+apiVersion: policy.linkerd.io/v1beta3
+kind: Server
+metadata: {name: postgres, namespace: notes}
+spec:
+  podSelector: {matchLabels: {app: postgres}}
+  port: postgres
+  proxyProtocol: opaque
+  accessPolicy: deny

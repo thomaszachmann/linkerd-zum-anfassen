@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: web-conf, namespace: tag08}
+data:
+  default.conf: |
+    server {
+      listen 8080;
+      location /get {
+        proxy_pass http://helper.tag08.svc.cluster.local/get;
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: web, namespace: tag08}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: web}}
+  template:
+    metadata: {labels: {app: web}}
+    spec:
+      serviceAccountName: web
+      containers:
+      - name: web
+        image: docker.io/nginxinc/nginx-unprivileged:1.31.7-alpine
+        ports: [{containerPort: 8080, name: http}]
+        volumeMounts: [{name: conf, mountPath: /etc/nginx/conf.d}]
+      volumes: [{name: conf, configMap: {name: web-conf}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: web, namespace: tag08}
+spec:
+  selector: {app: web}
+  ports: [{port: 80, targetPort: http, name: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: helper, namespace: tag08}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: helper, variante: gesund}}
+  template:
+    metadata: {labels: {app: helper, variante: gesund}}
+    spec:
+      serviceAccountName: helper
+      containers:
+      - name: helper
+        image: ghcr.io/mccutchen/go-httpbin:2.26.0
+        ports: [{containerPort: 8080, name: http}]
+        readinessProbe:
+          httpGet: {path: /status/200, port: http}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: helper, namespace: tag08}
+spec:
+  selector: {app: helper}
+  ports: [{port: 80, targetPort: http, name: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: last, namespace: tag08}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: last}}
+  template:
+    metadata: {labels: {app: last}}
+    spec:
+      serviceAccountName: last
+      containers:
+      - name: last
+        image: docker.io/curlimages/curl:8.23.0
+        command: [sh, -c]
+        args:
+        - |
+          while true; do
+            for p in /get /get /get; do
+              code=$(curl -s -o /dev/null -w "%{http_code}" -m 5 http://web$p)
+              echo "$(date +%T) $p $code"
+            done
+            sleep 1
+          done
