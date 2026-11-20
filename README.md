@@ -1,34 +1,35 @@
-# Linkerd zum Anfassen – Begleitcode
+# Linkerd hands-on – Companion Code
 
-Begleitcode zum Buch **Linkerd zum Anfassen** – Service Mesh im echten Cluster: mTLS,
-Traffic und Multicluster. Teil der Reihe IT-Trainingslager von Thomas Zachmann.
+Companion code for the book **Linkerd hands-on** (German edition: *Linkerd zum Anfassen*) – a
+service mesh on a real cluster: mTLS, traffic and multicluster. Part of Thomas Zachmann's IT
+Drills series.
 
-Buchseite: https://it-trainingslager.de/buecher/linkerd ·
+Book page: https://it-trainingslager.de/buecher/linkerd ·
 English edition: https://itdrills.com/books/linkerd
 
-Das Buch ist kostenlos, als Kurs im Browser sowie als PDF und EPUB.
+The book is free, as a course in the browser and as PDF and EPUB.
 
-## Inhalt
+## Contents
 
-- `manifests/tagNN/` – die Manifeste und Values-Dateien so, wie sie im Labor für das
-  jeweilige Kapitel liefen (Tag 0 bis 18), `manifests/pruefung/` für Anhang B.
+- `manifests/tagNN/` – the manifests and values files exactly as they ran in the lab for the
+  respective chapter (Day 0 to 18), `manifests/pruefung/` for Appendix B.
 
-Im Buch tippst du alles selbst – das ist das Training. Die Dateien hier helfen beim
-Vergleichen, wenn etwas nicht so aussieht wie im Buch. Generierte Manifeste
-(`linkerd install`, `linkerd viz install`) und Dateien mit privaten Schlüsseln oder
-Zugangsdaten sind bewusst nicht enthalten.
+In the book you type everything yourself – that is the training. The files here help you
+compare when something doesn't look the way it does in the book. Generated manifests
+(`linkerd install`, `linkerd viz install`) and files with private keys or
+credentials are deliberately not included.
 
-Alle Passwörter und Schlüssel im Buch (z. B. `lab-db-123`, `lab-key-123`,
-`lab-grafana-123`) sind Laborwerte – nie in Produktion verwenden.
+All passwords and keys in the book (e.g. `lab-db-123`, `lab-key-123`,
+`lab-grafana-123`) are lab values – never use them in production.
 
-Getestet mit Linkerd `edge-26.11.2` auf kubeadm/Kubernetes 1.37.2 mit Cilium 1.20.5
-und k3s v1.37.2, amd64 (Befehle im Buch sind architekturneutral).
+Tested with Linkerd `edge-26.11.2` on kubeadm/Kubernetes 1.37.2 with Cilium 1.20.5
+and k3s v1.37.2, amd64 (the commands in the book are architecture-neutral).
 
-Die erste Fassung dieses Repos (kind-Labor, Stand 6. November 2026) liegt in der
-Git-Historie.
+The first version of this repo (kind lab, as of 6 November 2026) is in the
+Git history.
 
-## Hinweis
+## Disclaimer
 
-Linkerd ist ein CNCF-Projekt und eine Marke der Linux Foundation. Dieses Projekt ist
-unabhängig und steht in keiner Verbindung zur Linux Foundation, zur CNCF oder zu
-Anbietern von Linkerd-Distributionen.
+Linkerd is a CNCF project and a trademark of the Linux Foundation. This project is
+independent and not affiliated with the Linux Foundation, the CNCF or
+vendors of Linkerd distributions.
